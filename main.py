@@ -9,11 +9,12 @@ daily_subscribe = 0
 daily_tour = 0
 luck_day = 0
 daily_check = 0
+test = 0
 
 desired_caps = dict()
 desired_caps['platformName'] = 'Android'
 desired_caps['platformversion'] = '7.1.1'
-desired_caps['deviceName'] = '192.168.0.105:5555'
+desired_caps['deviceName'] = '192.168.0.104:5556'
 # desired_caps['udid'] = '192.168.0.101:5556'
 #desired_caps['appPackage'] = 'com.moutai.mall'
 #desired_caps['appActivity'] = '.MainActivity'
@@ -62,6 +63,9 @@ def daily_subcribe():
     try:
         #driver.start_activity('com.moutai.mall', '.MainActivity')
         driver.find_element_by_xpath("//*[@content-desc='i茅台']").click()
+        driver.find_element_by_xpath("//*[@text='首页']").click()
+        driver.find_element_by_xpath("//*[@text='首页']").click()
+        driver.find_element_by_xpath("//*[@text='首页']").click()
         driver.find_element_by_id("com.moutai.mall:id/ivLeft").click()
         driver.find_element_by_xpath("//*[@text='预约申购']").click()
         driver.find_element_by_xpath("//*[@text='申购']").click()
@@ -73,9 +77,16 @@ def daily_subcribe():
         driver.find_element_by_xpath("//*[@text='预约申购']").click()
         driver.find_element_by_xpath("//*[@text='申购']").click()
         driver.find_element_by_xpath("//*[@text='确定申购']").click()
+        driver.find_element_by_xpath("//*[@text='继续申购']").click()
 
         #check
-        driver.find_element_by_xpath("//*[@text='查看详情']").click()
+        driver.press_keycode(4)  # back
+        time.sleep(1)
+        driver.press_keycode(4)  # back
+        driver.find_element_by_xpath("//*[@text='我的']").click()
+        driver.find_element_by_xpath("//*[@text='我的申购单']").click()
+        date = driver.find_elements_by_id("com.moutai.mall:id/date_time")
+        status = driver.find_elements_by_id("com.moutai.mall:id/draw_status")
         time.sleep(2)
         date = driver.find_elements_by_id("com.moutai.mall:id/date_time")
         status = driver.find_elements_by_id("com.moutai.mall:id/draw_status")
@@ -88,6 +99,7 @@ def daily_subcribe():
         print(str)
         driver.press_keycode(4)  # return
         if string == str:
+            print("申购成功")
             return 0
         else:
             return -1
@@ -146,40 +158,15 @@ def xiao_mao_yun():
     # TouchAction(driver).tap(x=544, y=1620).perform()
 
 
-def catch_jong_dong():
-    try:
-        driver.find_element_by_xpath("//*[@content-desc='京东']").click()
-    except Exception as e:
-        print(e)
-    driver.find_element_by_xpath("//*[@text='我的']").click()
-    driver.find_element_by_xpath("//*[@text='商品收藏']").click()
-    driver.find_element_by_xpath("//*[@resource-id='com.jd.lib.favourites.feature:id/b7']").click()
-
-
-def catch_tian_mao():
-    try:
-        driver.find_element_by_xpath("//*[@content-desc='手机天猫']").click()
-    except Exception as e:
-        print(e)
-    driver.find_element_by_xpath("//*[@text='购物车']").click()
-    driver.find_element_by_xpath("//*[@content-desc='天猫超市店铺勾选按钮未选中']").click()
-    driver.find_element_by_xpath("//*[@content-desc='结算,按钮']").click()
-    driver.find_element_by_xpath("//*[@content-desc='提交订单']").click()
-
-
 def unlock():
-    global driver
     try:
-        driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)
-        driver.implicitly_wait(20)
+        driver.unlock()
+        time.sleep(1)
         driver.swipe(530, 1700, 530, 300, 200)
         TouchAction(driver).press(x=536, y=993).move_to(x=247, y=1283).move_to(x=536, y=1283).move_to(x=828, y=1283).release().perform()
         driver.press_keycode(3)  # home
     except Exception as e:
         print(e)
-
-
-
 
 def lock():
     try:
@@ -190,13 +177,16 @@ def lock():
         time.sleep(2)
         driver.close_app()
         time.sleep(2)
-        driver.press_keycode(26)  # power
-        driver.quit()
+        driver.lock(0)
+        # driver.press_keycode(26)  # power
+        # driver.quit()
     except Exception as e:
         print(e)
 
 
 if __name__ == '__main__':
+    driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)
+    driver.implicitly_wait(20)
     while 1:
         current_time = time.localtime(time.time())
         if current_time.tm_hour == 8:
@@ -211,13 +201,13 @@ if __name__ == '__main__':
             if daily_subcribe() == 0:
                 daily_subscribe = 1
             lock()
-        elif current_time.tm_hour == 10 and daily_tour is 0:
+        elif current_time.tm_hour == 9 and daily_tour is 0:
             print(current_time)
             unlock()
             if xiao_mao_yun() == 0:
                 daily_tour = 1
             lock()
-        elif 0 < current_time.tm_min < 50:
+        elif test:
             print(current_time)
             unlock()
             lock()
@@ -228,4 +218,4 @@ if __name__ == '__main__':
         #     lock()
         #     daily_check = 1
 
-        time.sleep(600)
+        time.sleep(5)
